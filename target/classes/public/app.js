@@ -51,6 +51,7 @@ document.getElementById("login-form")?.addEventListener("submit", function (e) {
     });
 });
 
+<<<<<<< HEAD
 // 加载商品列表并支持搜索功能
 document.getElementById("search-btn")?.addEventListener("click", function() {
      const searchTerm = document.getElementById("search-input").value.toLowerCase();
@@ -91,6 +92,49 @@ function displayProducts(products) {
         });
         productContainer.appendChild(productDiv);
     }); // 确保forEach结束后加上闭合括号
+=======
+// 主页加载用户名和商品列表
+if (window.location.pathname.includes("homepage.html")) {
+    const username = localStorage.getItem("username") || "Guest";
+    const userInfo = document.getElementById("user-info");
+    userInfo.textContent = username;
+
+    userInfo.addEventListener("click", () => {
+        if (confirm("Are you sure you want to logout?")) {
+            localStorage.removeItem("username");
+            window.location.href = "index.html";
+        }
+    });
+
+    fetch(`${API_BASE}/products`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch products");
+            }
+            return response.json();
+        })
+        .then(products => {
+            const productContainer = document.getElementById("product-list");
+            productContainer.innerHTML = "";
+            products.forEach(product => {
+                const productDiv = document.createElement("div");
+                productDiv.className = "product";
+                productDiv.innerHTML = `
+                    <img src="products/${product.id}.jpg" alt="${product.name}" />
+                    <h3 title="${product.name}">${truncateText(product.name, 2)}</h3>
+                    <p>RM ${product.price.toFixed(2)}</p>
+                `;
+                productDiv.addEventListener("click", () => {
+                    window.location.href = `product.html?id=${product.id}`;
+                });
+                productContainer.appendChild(productDiv);
+            });
+        })
+        .catch(error => {
+            console.error("Error loading products:", error);
+            alert("Failed to load products. Please try again later.");
+        });
+>>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
 }
 
 
@@ -103,6 +147,7 @@ function truncateText(text, maxLines) {
     }
     return text;
 }
+<<<<<<< HEAD
 
 // 默认加载所有商品
 fetch(`${API_BASE}/products`)
@@ -121,3 +166,5 @@ fetch(`${API_BASE}/products`)
        console.error("Error loading products:", error);
        alert("Failed to load products. Please try again later.");
    });
+=======
+>>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
