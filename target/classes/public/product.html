@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details</title>
+  <link rel="stylesheet" href="product.css">
+</head>
+<body>
+<header>
+  <h1>PinXixi</h1>
+</header>
+<div class="product-details">
+  <!-- 图片部分 -->
+  <div class="image-gallery">
+    <div class="zoom-container">
+      <img id="product-image" src="" alt="Product Image">
+      <div class="zoom-lens" id="zoom-lens"></div>
+    </div>
+    <div class="thumbnail-container" id="thumbnail-container">
+      <!-- 缩略图动态加载 -->
+    </div>
+    <div class="image-navigation">
+      <button id="prev-button">&lt; Prev</button>
+      <button id="next-button">Next &gt;</button>
+    </div>
+  </div>
+  <!-- 信息部分 -->
+  <div class="product-info">
+    <h2 id="product-name"></h2>
+    <p id="product-price"></p>
+    <div>
+      <span class="description-title">Product Description:</span>
+      <p id="product-description"></p>
+    </div>
+    <div class="buttons">
+      <button id="add-to-cart">Add to Cart</button>
+      <button id="buy-now">Buy Now</button>
+    </div>
+  </div>
+</div>
+<script src="product.js"></script>
+</body>
+</html>
