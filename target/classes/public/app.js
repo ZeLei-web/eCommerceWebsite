@@ -51,47 +51,46 @@ document.getElementById("login-form")?.addEventListener("submit", function (e) {
     });
 });
 
-// 主页加载用户名和商品列表
-if (window.location.pathname.includes("homepage.html")) {
-    const username = localStorage.getItem("username") || "Guest";
-    const userInfo = document.getElementById("user-info");
-    userInfo.textContent = username;
+// 加载商品列表并支持搜索功能
+document.getElementById("search-btn")?.addEventListener("click", function() {
+     const searchTerm = document.getElementById("search-input").value.toLowerCase();
+     console.log('Searching for:', searchTerm);  // 确认输入的搜索关键词
+     fetch(`${API_BASE}/products`)
+         .then(response => response.json())
+         .then(products => {
+             // 过滤产品时，确保 name 和 description 存在
+             const filteredProducts = products.filter(product => {
+                 const name = product.name ? product.name.toLowerCase() : ''; // 确保 name 存在
+                 const description = product.description ? product.description.toLowerCase() : ''; // 确保 description 存在
+                 return name.includes(searchTerm) || description.includes(searchTerm);
+             });
+             displayProducts(filteredProducts);
+         })
+         .catch(error => {
+             console.error("Error loading products:", error);
+             alert("Failed to load products. Please try again later.");
+         });
+ });
 
-    userInfo.addEventListener("click", () => {
-        if (confirm("Are you sure you want to logout?")) {
-            localStorage.removeItem("username");
-            window.location.href = "index.html";
-        }
-    });
 
-    fetch(`${API_BASE}/products`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Failed to fetch products");
-            }
-            return response.json();
-        })
-        .then(products => {
-            const productContainer = document.getElementById("product-list");
-            productContainer.innerHTML = "";
-            products.forEach(product => {
-                const productDiv = document.createElement("div");
-                productDiv.className = "product";
-                productDiv.innerHTML = `
-                    <img src="products/${product.id}.jpg" alt="${product.name}" />
-                    <h3 title="${product.name}">${truncateText(product.name, 2)}</h3>
-                    <p>RM ${product.price.toFixed(2)}</p>
-                `;
-                productDiv.addEventListener("click", () => {
-                    window.location.href = `product.html?id=${product.id}`;
-                });
-                productContainer.appendChild(productDiv);
-            });
-        })
-        .catch(error => {
-            console.error("Error loading products:", error);
-            alert("Failed to load products. Please try again later.");
+// 显示商品的函数
+function displayProducts(products) {
+    const productContainer = document.getElementById("product-list");
+    productContainer.innerHTML = ""; // 清空现有商品
+
+    products.forEach(product => {
+        const productDiv = document.createElement("div");
+        productDiv.className = "product";
+        productDiv.innerHTML = `
+            <img src="products/${product.id}.jpg" alt="${product.name}" />
+            <h3 title="${product.name}">${truncateText(product.name, 2)}</h3>
+            <p>RM ${product.price.toFixed(2)}</p>
+        `;
+        productDiv.addEventListener("click", () => {
+            window.location.href = `product.html?id=${product.id}`;
         });
+        productContainer.appendChild(productDiv);
+    }); // 确保forEach结束后加上闭合括号
 }
 
 
@@ -104,3 +103,21 @@ function truncateText(text, maxLines) {
     }
     return text;
 }
+
+// 默认加载所有商品
+fetch(`${API_BASE}/products`)
+   .then(response => {
+       if (!response.ok) {
+           console.error('Failed to load products:', response.statusText);
+           throw new Error("Failed to load products");
+       }
+       return response.json();
+   })
+   .then(products => {
+       console.log("Products loaded:", products);
+       displayProducts(products);
+   })
+   .catch(error => {
+       console.error("Error loading products:", error);
+       alert("Failed to load products. Please try again later.");
+   });

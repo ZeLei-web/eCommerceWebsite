@@ -29,45 +29,18 @@ header {
     background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: relative;
 }
 
-.zoom-container {
-    position: absolute;
-    display: none; /* 默认隐藏 */
-    border: 2px solid #ddd;
-    background-color: white;
-    background-repeat: no-repeat;
-    background-size: 200%; /* 放大比例 */
-    z-index: 10;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.main-image {
+    width: 100%;
+    text-align: center;
 }
 
-
-.zoom-container img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: cover;
-}
-
-.zoom-lens {
-    position: absolute;
-    width: 100px; /* 调整镜头大小 */
-    height: 100px;
-    border: 2px solid #ff6600;
-    background-color: rgba(255, 255, 255, 0.5);
-    pointer-events: none;
-}
-
-.zoom-container:hover .zoom-lens {
-    display: block; /* 鼠标悬停时显示 */
-}
-
-.zoom-container:hover {
-    background-color: #fff;
-    background-repeat: no-repeat;
-    background-size: 800px 800px; /* 放大图片的背景尺寸 */
-    cursor: crosshair;
+#product-image {
+    width: 100%;
+    max-width: 500px; /* 设置主图宽度 */
+    max-height: 500px;
+    object-fit: contain;
 }
 
 .image-navigation {
@@ -130,7 +103,6 @@ header {
     margin-left: 20px;
 }
 
-/*产品名*/
 .product-info h2 {
     font-size: 27px;
     margin-bottom: 20px;
@@ -144,7 +116,6 @@ header {
     color: #555;
 }
 
-/*价格*/
 .product-info p#product-price {
     font-size: 30px;
     font-weight: bold;
@@ -159,7 +130,7 @@ header {
     color: #333;
 }
 
-#product-description{
+#product-description {
     font-size: 15px;
 }
 
