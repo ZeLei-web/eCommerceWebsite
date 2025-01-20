@@ -10,6 +10,8 @@ public class ApiHandler {
     public static void main(String[] args) {
         UserManager userManager = new UserManager();
         ProductManager productManager = new ProductManager();
+        CartManager cartManager = new CartManager();
+        OrderManager orderManager = new OrderManager();
 
         // 配置静态资源目录
         staticFiles.externalLocation("src/main/resources/public");
@@ -66,7 +68,8 @@ public class ApiHandler {
                     )
             ).toList());
         });
-// 添加单个商品详情接口
+
+        // 添加单个商品详情接口
         get("/products/:id", (req, res) -> {
             String idParam = req.params(":id");
             if (idParam == null || idParam.isEmpty()) {
@@ -91,8 +94,79 @@ public class ApiHandler {
             }
         });
 
+        // 添加到购物车接口
+        post("/cart", (req, res) -> {
+            Gson gson = new Gson();
+            CartItem cartItem;
+            try {
+                cartItem = gson.fromJson(req.body(), CartItem.class);
+            } catch (Exception e) {
+                res.status(400);
+                return "Invalid request payload.";
+            }
+
+            if (cartItem.getId() <= 0 || cartItem.getName() == null || cartItem.getName().isEmpty()) {
+                res.status(400);
+                return "Invalid cart item data.";
+            }
+
+            boolean success = cartManager.addToCart(cartItem);
+            if (success) {
+                res.status(200);
+                return "Item added to cart successfully.";
+            } else {
+                res.status(500);
+                return "Failed to add item to cart.";
+            }
+        });
+
+        // 创建订单接口
+        post("/order", (req, res) -> {
+            Gson gson = new Gson();
+            Order order = gson.fromJson(req.body(), Order.class);
+
+            if (order.getProductId() <= 0 || order.getStatus() == null || order.getStatus().isEmpty()) {
+                res.status(400);
+                return "Invalid order data.";
+            }
+
+            boolean success = orderManager.createOrder(order);
+            if (success) {
+                res.status(200);
+                return "Order created successfully.";
+            } else {
+                res.status(500);
+                return "Failed to create order.";
+            }
+        });
+
+        put("/order/:id", (req, res) -> {
+            int orderId = Integer.parseInt(req.params(":id"));
+            String newStatus = req.queryParams("status");
+
+            if (newStatus == null || newStatus.isEmpty()) {
+                res.status(400);
+                return "Invalid status.";
+            }
+
+            boolean success = orderManager.updateOrderStatus(orderId, newStatus);
+            if (success) {
+                res.status(200);
+                return "Order status updated successfully.";
+            } else {
+                res.status(500);
+                return "Failed to update order status.";
+            }
+        });
 
 
+// 获取订单列表接口
+        get("/orders", (req, res) -> {
+            List<Order> orders = orderManager.getOrders();
+            Gson gson = new Gson();
+            res.type("application/json");
+            return gson.toJson(orders);
+        });
 
         System.out.println("Server running at http://localhost:4567");
     }
