@@ -18,6 +18,36 @@ fetch(`${API_BASE}/products/${productId}`)
         document.getElementById("product-description").textContent = product.description;
 
         loadProductImages(productId);
+
+        // "Add to Cart" 按钮功能
+                document.getElementById("add-to-cart").addEventListener("click", () => {
+                    fetch(`${API_BASE}/cart`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price
+                        })
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                alert("Item added to cart successfully!");
+                            } else {
+                                response.text().then(msg => alert(`Failed to add item to cart: ${msg}`));
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error adding item to cart:", error);
+                            alert("Failed to add item to cart. Please try again.");
+                        });
+                });
+
+                // "Buy Now" 按钮功能
+                document.getElementById("buy-now").addEventListener("click", () => {
+                    localStorage.setItem("buyNowItem", JSON.stringify(product));
+                    window.location.href = "order.html";
+                });
     })
     .catch(error => console.error("Error loading product details:", error));
 
@@ -91,4 +121,48 @@ nextButton.addEventListener("click", () => {
         currentImageIndex++;
         updateImage();
     }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("add-to-cart").addEventListener("click", () => {
+        fetch(`${API_BASE}/cart`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id: productId,
+                name: document.getElementById("product-name").textContent,
+                price: parseFloat(document.getElementById("product-price").textContent.replace("RM ", ""))
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Item added to cart successfully!");
+            } else {
+                alert("Failed to add item to cart.");
+            }
+        })
+        .catch(error => console.error("Error adding item to cart:", error));
+    });
+
+    document.getElementById("buy-now").addEventListener("click", () => {
+        fetch(`${API_BASE}/order`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                productId: productId,
+                status: "Processing"
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Order created successfully!");
+                window.location.href = "orderlist.html";
+            } else {
+                alert("Failed to create order.");
+            }
+        })
+        .catch(error => console.error("Error creating order:", error));
+    });
+
+
 });
