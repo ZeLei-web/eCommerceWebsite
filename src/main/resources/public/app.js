@@ -48,7 +48,8 @@ document.getElementById("login-form")?.addEventListener("submit", function (e) {
         })
         .catch(error => {
             console.error("Error during login:", error);
-            alert("Login failed: Unable to connect to the server.");
+//            alert("Login failed: Unable to connect to the server.");
+            alert("Invalid username or password");
         });
 });
 
