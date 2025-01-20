@@ -3,12 +3,14 @@ package com.ecommerce;
 public class Order {
     private int orderId;      // 订单编号
     private int productId;    // 商品编号
+    private int userId;       // 用户编号
     private String status;    // 订单状态（例如 "Processing", "Completed" 等）
 
     // 构造函数
-    public Order(int orderId, int productId, String status) {
+    public Order(int orderId, int productId, int userId, String status) {
         this.orderId = orderId;
         this.productId = productId;
+        this.userId = userId;
         this.status = status;
     }
 
@@ -32,6 +34,14 @@ public class Order {
         this.productId = productId;
     }
 
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -46,6 +56,7 @@ public class Order {
         return "Order{" +
                 "orderId=" + orderId +
                 ", productId=" + productId +
+                ", userId=" + userId +
                 ", status='" + status + '\'' +
                 '}';
     }

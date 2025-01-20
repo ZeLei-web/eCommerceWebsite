@@ -2,6 +2,7 @@ package com.ecommerce;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static spark.Spark.*;
@@ -45,9 +46,10 @@ public class ApiHandler {
         post("/login", (req, res) -> {
             String username = req.queryParams("username");
             String password = req.queryParams("password");
+
             if (userManager.login(username, password)) {
                 res.type("application/json");
-                return "{\"message\":\"Login successful\", \"username\":\"" + username + "\"}";
+                return "{\"message\":\"Login successful\", \"userId\":\"" + username + "\", \"username\":\"" + username + "\"}";
             } else {
                 res.status(401);
                 return "Invalid username or password";
@@ -160,15 +162,53 @@ public class ApiHandler {
         });
 
 
-// 获取订单列表接口
+// 获取当前用户的订单列表接口
         get("/orders", (req, res) -> {
-            List<Order> orders = orderManager.getOrders();
-            Gson gson = new Gson();
-            res.type("application/json");
-            return gson.toJson(orders);
-        });
+            String currentUserId = req.queryParams("userId");
+            if (currentUserId == null || currentUserId.isEmpty()) {
+                res.status(400);
+                return "User ID is required.";
+            }
 
+            List<Order> orders = orderManager.getOrders();
+            List<OrderWithProductDetails> userOrders = new ArrayList<>();
+
+            for (Order order : orders) {
+                if (String.valueOf(order.getUserId()).equals(currentUserId)) { // 确保类型一致
+                    Product product = productManager.getProductById(order.getProductId());
+                    if (product != null) {
+                        userOrders.add(new OrderWithProductDetails(order, product));
+                    }
+                }
+            }
+
+            if (userOrders.isEmpty()) {
+                res.status(404);
+                return "No orders found for this user.";
+            }
+
+            res.type("application/json");
+            return new Gson().toJson(userOrders);
+        });
         System.out.println("Server running at http://localhost:4567");
+    }
+    // 包含订单与商品详情的组合类
+    static class OrderWithProductDetails {
+        private final int orderId;
+        private final int productId;
+        private final String productName;
+        private final double productPrice;
+        private final String productImagePath;
+        private final String status;
+
+        public OrderWithProductDetails(Order order, Product product) {
+            this.orderId = order.getOrderId();
+            this.productId = order.getProductId();
+            this.productName = product.getName();
+            this.productPrice = product.getPrice();
+            this.productImagePath = "/products/" + product.getId() + ".jpg";
+            this.status = order.getStatus();
+        }
     }
 
     // 用于 JSON 响应的内部类

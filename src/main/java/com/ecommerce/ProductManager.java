@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductManager {
-    private static final String FILE_PATH = "src/main/resources/product.txt";
+    private static final String PRODUCT_FILE_PATH = "src/main/resources/product.txt";
 
     public List<Product> getProducts() throws IOException {
         List<Product> products = new ArrayList<>();
-        File file = new File(FILE_PATH);
+        File file = new File(PRODUCT_FILE_PATH);
         if (!file.exists()) {
-            System.err.println("File not found: " + FILE_PATH);
+            System.err.println("File not found: " + PRODUCT_FILE_PATH);
             return products;
         }
 
@@ -65,16 +65,43 @@ public class ProductManager {
         json.append("]");
         return json.toString();
     }
-    public Product getProductById(int id) {
-        try {
-            return getProducts().stream()
-                    .filter(product -> product.getId() == id)
-                    .findFirst()
-                    .orElse(null);
+
+    // 根据商品 ID 获取商品详情
+    public Product getProductById(int productId) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(PRODUCT_FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(";;;", 4); // 确保只分割前三部分，第四部分为 description
+                if (parts.length >= 3) {
+                    int id = Integer.parseInt(parts[0]);
+                    if (id == productId) {
+                        String name = parts[1];
+                        double price = Double.parseDouble(parts[2]);
+
+                        // 如果 description 以双引号开头，处理多行描述
+                        StringBuilder descriptionBuilder = new StringBuilder();
+                        if (parts[3].startsWith("\"")) {
+                            descriptionBuilder.append(parts[3].substring(1)); // 去掉开头的双引号
+                            while ((line = reader.readLine()) != null) {
+                                if (line.endsWith("\"")) { // 检测结尾双引号
+                                    descriptionBuilder.append("\n").append(line.substring(0, line.length() - 1));
+                                    break;
+                                } else {
+                                    descriptionBuilder.append("\n").append(line);
+                                }
+                            }
+                        } else {
+                            descriptionBuilder.append(parts[3]); // 单行描述直接使用
+                        }
+
+                        return new Product(id, name, price, descriptionBuilder.toString());
+                    }
+                }
+            }
         } catch (IOException e) {
-            System.err.println("Error fetching product by ID: " + e.getMessage());
-            return null;
+            System.err.println("Error reading product list: " + e.getMessage());
         }
+        return null;
     }
 
 
