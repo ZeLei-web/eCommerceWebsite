@@ -44,8 +44,10 @@ fetch(`${API_BASE}/cart?userId=${currentUserId}`)
 
                     // 删除按钮事件
                     cartItemDiv.querySelector(".remove-btn").addEventListener("click", () => {
-                        removeFromCart(item.productId);
+                        const productId = item.productId;
+                        removeFromCart(productId); // 删除指定商品
                     });
+
 
                     // 更新数量按钮事件
                     cartItemDiv.querySelector(".update-btn").addEventListener("click", () => {
@@ -64,8 +66,19 @@ fetch(`${API_BASE}/cart?userId=${currentUserId}`)
 
 // 从购物车删除商品
 function removeFromCart(productId) {
-    fetch(`${API_BASE}/cart/${productId}`, {
-        method: "DELETE"
+    const currentUserId = localStorage.getItem("userId"); // 获取当前用户ID
+    if (!currentUserId) {
+        alert("Please log in to remove items from your cart.");
+        window.location.href = "index.html"; // 跳转到登录页面
+        return;
+    }
+
+    // 发送删除请求
+    fetch(`${API_BASE}/cart/${productId}?userId=${currentUserId}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
+        }
     })
     .then(response => {
         if (response.ok) {
@@ -80,6 +93,7 @@ function removeFromCart(productId) {
         alert("Failed to remove item from cart.");
     });
 }
+
 
 // 更新购物车中商品数量
 function updateCartItem(productId, quantity) {
