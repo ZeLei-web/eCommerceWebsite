@@ -29,6 +29,20 @@ header {
     background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+<<<<<<< HEAD
+}
+
+.main-image {
+    width: 100%;
+    text-align: center;
+}
+
+#product-image {
+    width: 100%;
+    max-width: 500px; /* 设置主图宽度 */
+    max-height: 500px;
+    object-fit: contain;
+=======
     position: relative;
 }
 
@@ -68,6 +82,7 @@ header {
     background-repeat: no-repeat;
     background-size: 800px 800px; /* 放大图片的背景尺寸 */
     cursor: crosshair;
+>>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
 }
 
 .image-navigation {
@@ -130,7 +145,10 @@ header {
     margin-left: 20px;
 }
 
+<<<<<<< HEAD
+=======
 /*产品名*/
+>>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
 .product-info h2 {
     font-size: 27px;
     margin-bottom: 20px;
@@ -144,7 +162,10 @@ header {
     color: #555;
 }
 
+<<<<<<< HEAD
+=======
 /*价格*/
+>>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
 .product-info p#product-price {
     font-size: 30px;
     font-weight: bold;
@@ -159,7 +180,11 @@ header {
     color: #333;
 }
 
+<<<<<<< HEAD
+#product-description {
+=======
 #product-description{
+>>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
     font-size: 15px;
 }
 
