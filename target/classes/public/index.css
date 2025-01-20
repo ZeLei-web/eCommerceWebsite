@@ -1,0 +1,95 @@
+/* 设置基础样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 背景和全局字体 */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fc; /* 柔和的背景色 */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* 容器样式 */
+.auth-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    text-align: center;
+}
+
+/* 标题 */
+h1 {
+    color: #ff6600; /* 主题色 */
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+/* 表单样式 */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.auth-form h2 {
+    color: #555;
+    font-size: 1.6em;
+    margin-bottom: 15px;
+}
+
+/* 输入框样式 */
+.auth-form input {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.auth-form input:focus {
+    border-color: #ff6600; /* 聚焦时边框变为主题色 */
+}
+
+/* 按钮样式 */
+.auth-form button {
+    padding: 12px;
+    background-color: #ff6600;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-form button:hover {
+    background-color: #e65c00; /* 悬停时变色 */
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+    .auth-container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .auth-form input,
+    .auth-form button {
+        font-size: 1em;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+}

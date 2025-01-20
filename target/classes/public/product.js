@@ -9,16 +9,6 @@ const thumbnailContainer = document.getElementById("thumbnail-container");
 const prevButton = document.getElementById("prev-button");
 const nextButton = document.getElementById("next-button");
 
-<<<<<<< HEAD
-=======
-// 添加放大镜相关 DOM 和样式
-const zoomLens = document.createElement("div");
-zoomLens.classList.add("zoom-lens");
-const zoomContainer = document.createElement("div");
-zoomContainer.classList.add("zoom-container");
-document.body.appendChild(zoomContainer);
-
->>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
 // 加载商品详情
 fetch(`${API_BASE}/products/${productId}`)
     .then(response => response.json())
@@ -28,123 +18,82 @@ fetch(`${API_BASE}/products/${productId}`)
         document.getElementById("product-description").textContent = product.description;
 
         loadProductImages(productId);
+
+        // "Add to Cart" 按钮功能
+        document.getElementById("add-to-cart").addEventListener("click", () => {
+            addToCart(product);
+        });
+
+        // "Buy Now" 按钮功能
+        document.getElementById("buy-now").addEventListener("click", () => {
+            createOrder(product); // Pass the entire product object
+        });
     })
     .catch(error => console.error("Error loading product details:", error));
 
 // 加载商品图片
 function loadProductImages(productId) {
     let index = 0;
-<<<<<<< HEAD
-    const maxImages = 10; // 假设最多有10张图片
-=======
->>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
+    const maxImages = 10;
 
     function loadNextImage() {
         const imagePath = `products/${productId}${index === 0 ? "" : `-${index}`}.jpg`;
-        const img = new Image();
-        img.src = imagePath;
 
-        img.onload = () => {
-<<<<<<< HEAD
-            images.push(imagePath); // 加载成功的图片路径
-            addThumbnail(imagePath, index); // 添加缩略图
-            if (index === 0) {
-                updateImage(); // 显示原图
-            }
-            index++;
-            if (index < maxImages) {
-                loadNextImage(); // 继续加载下一张图片
-            }
-=======
-            images.push(imagePath); // 图片加载成功，添加到数组
-            addThumbnail(imagePath, index); // 添加缩略图
-            if (index === 0) updateImage(); // 更新主图为第一张
-            index++;
-            loadNextImage(); // 尝试加载下一张图片
->>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
-        };
+        fetch(imagePath, { method: "HEAD" }) // 使用 HEAD 请求检查图片是否存在
+            .then(response => {
+                if (response.ok) {
+                    const img = new Image();
+                    img.src = imagePath;
 
-        img.onerror = () => {
-            console.warn(`Image not found: ${imagePath}`);
-<<<<<<< HEAD
-            // 如果找不到图片，停止加载后续图片
-            if (index === 0) {
-                const defaultImage = "products/default.jpg"; // 使用默认图片
-                productImage.src = defaultImage;
-            }
-=======
-            if (index === 0) { // 如果是第一张图片没有找到，使用默认图片
-                const defaultImage = "products/default.jpg";
-                productImage.src = defaultImage;
-                zoomContainer.style.backgroundImage = `url(${defaultImage})`;
-                console.warn("Using default image.");
-            }
-            // 如果没有更多图片，停止加载
-            if (index > 0) return;
->>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
-        };
+                    img.onload = () => {
+                        images.push(imagePath); // 加载成功的图片路径
+                        addThumbnail(imagePath, index); // 添加缩略图
+                        if (index === 0) {
+                            updateImage(); // 显示第一张图片
+                        }
+                        index++;
+                        if (index < maxImages) {
+                            loadNextImage(); // 加载下一张图片
+                        }
+                    };
+                } else {
+                    console.warn(`Image not found: ${imagePath}`);
+                }
+            })
+            .catch(error => {
+                console.warn(`Error checking image: ${imagePath}`, error);
+            });
     }
 
     loadNextImage(); // 开始加载图片
 }
 
-<<<<<<< HEAD
 // 添加缩略图
-=======
-
->>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
 function addThumbnail(imagePath, index) {
     const thumbnail = document.createElement("img");
     thumbnail.src = imagePath;
     thumbnail.classList.add("thumbnail");
     thumbnail.addEventListener("click", () => {
         currentImageIndex = index;
-<<<<<<< HEAD
-        updateImage(); // 更新主图
-=======
         updateImage();
-        zoomContainer.style.backgroundImage = `url(${imagePath})`;
->>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
     });
     thumbnailContainer.appendChild(thumbnail);
 }
 
-<<<<<<< HEAD
 // 更新主图
 function updateImage() {
     if (images.length > 0) {
-        productImage.src = images[currentImageIndex]; // 更新主图路径
-    } else {
-        const defaultImage = "products/default.jpg"; // 使用默认图片
-        productImage.src = defaultImage;
-    }
-}
-
-=======
-function updateImage() {
-    if (images.length > 0) {
         productImage.src = images[currentImageIndex];
-        zoomContainer.style.backgroundImage = `url(${images[currentImageIndex]})`;
     } else {
-        // 使用默认图片
-        const defaultImage = "products/default.jpg";
-        productImage.src = defaultImage;
-        zoomContainer.style.backgroundImage = `url(${defaultImage})`;
-        console.warn("Using default image.");
+        productImage.src = "products/default.jpg";
     }
 }
 
-
->>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
 // 导航按钮
 prevButton.addEventListener("click", () => {
     if (currentImageIndex > 0) {
         currentImageIndex--;
         updateImage();
-<<<<<<< HEAD
-=======
-        zoomContainer.style.backgroundImage = `url(${images[currentImageIndex]})`;
->>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
     }
 });
 
@@ -152,38 +101,127 @@ nextButton.addEventListener("click", () => {
     if (currentImageIndex < images.length - 1) {
         currentImageIndex++;
         updateImage();
-<<<<<<< HEAD
-    }
-});
-=======
-        zoomContainer.style.backgroundImage = `url(${images[currentImageIndex]})`;
     }
 });
 
-// 放大镜功能
-productImage.addEventListener("mousemove", (e) => {
-    if (images.length === 0) return; // 无图片时，不启用放大功能
+// 添加到购物车
+function addToCart(product) {
+    const currentUserId = localStorage.getItem("userId"); // 获取当前用户ID
+    if (!currentUserId) {
+        alert("Please log in to add items to your cart.");
+        window.location.href = "index.html"; // 跳转到登录页面
+        return;
+    }
 
-    const rect = productImage.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    // 弹出确认框，询问用户是否添加到购物车
+    const confirmAdd = confirm(`Do you want to add ${product.name} to your cart?`);
+    if (confirmAdd) {
+        // 检查该商品是否已在购物车中
+        fetch(`${API_BASE}/cart?userId=${currentUserId}`)
+            .then(response => response.json())
+            .then(cartItems => {
+                const existingItem = cartItems.find(item => item.productId === product.id);
+                if (existingItem) {
+                    // 如果商品已经存在，则更新数量
+                    existingItem.quantity += 1;
+                    updateCartItem(existingItem); // 更新购物车项
+                } else {
+                    // 如果商品不存在，则添加新商品
+                    addNewItemToCart(product, currentUserId);
+                }
+            })
+            .catch(error => {
+                console.error("Error checking cart items:", error);
+                alert("Failed to check cart items. Please try again.");
+            });
+    }
+}
 
-    const xPercent = (x / rect.width) * 100;
-    const yPercent = (y / rect.height) * 100;
 
-    zoomContainer.style.backgroundPosition = `${xPercent}% ${yPercent}%`;
-    zoomContainer.style.display = "block";
+// 添加新的商品到购物车
+function addNewItemToCart(product, userId) {
+    const newCartItem = {
+        productId: product.id, // 商品ID
+        userId: userId, // 当前用户ID
+        quantity: 1 // 初始数量为1
+    };
 
-    zoomContainer.style.top = `${rect.top}px`;
-    zoomContainer.style.left = `${rect.right + 20}px`;
-    zoomContainer.style.width = `${rect.width}px`;
-    zoomContainer.style.height = `${rect.height}px`;
-});
+    // 将商品信息写入后端
+    fetch(`${API_BASE}/cart`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newCartItem)
+    })
+    .then(response => {
+        if (response.ok) {
+            alert("Item added to cart successfully!");
+        } else {
+            alert("Failed to add item to cart.");
+        }
+    })
+    .catch(error => {
+        console.error("Error adding item to cart:", error);
+        alert("Failed to add item to cart. Please try again.");
+    });
+}
 
+// 更新购物车中商品数量
+function updateCartItem(cartItem) {
+    fetch(`${API_BASE}/cart`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(cartItem)
+    })
+    .then(response => {
+        if (response.ok) {
+            alert("Item quantity updated in cart.");
+        } else {
+            alert("Failed to update item quantity.");
+        }
+    })
+    .catch(error => {
+        console.error("Error updating cart item:", error);
+        alert("Failed to update cart item. Please try again.");
+    });
+}
 
-productImage.addEventListener("mouseleave", () => {
-    zoomContainer.style.display = "none";
-});
+// 创建订单
+function createOrder(product) {
+    const currentUserId = localStorage.getItem("userId"); // 获取当前登录用户的ID
+    if (!currentUserId) {
+        alert("Please log in to complete the purchase.");
+        window.location.href = "index.html"; // 跳转到登录页面
+        return;
+    }
 
+    const order = {
+        productId: product.id,
+        userId: currentUserId,  // 当前登录用户的ID
+        status: "Processing"
+    };
 
->>>>>>> 7213e9117fc049b3bc0cc5b9ec22fb97d1737a74
+    // 创建订单
+    fetch(`${API_BASE}/order`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(order)
+    })
+    .then(response => {
+        if (response.ok) {
+            alert("Order placed successfully!");
+            window.location.href = "orderlist.html";  // 跳转到订单列表
+        } else {
+            alert("Failed to place the order.");
+        }
+    })
+    .catch(error => {
+        console.error("Error creating order:", error);
+        alert("Failed to place the order. Please try again.");
+    });
+}
