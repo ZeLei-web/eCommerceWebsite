@@ -106,23 +106,87 @@ nextButton.addEventListener("click", () => {
 
 // 添加到购物车
 function addToCart(product) {
+    const currentUserId = localStorage.getItem("userId"); // 获取当前用户ID
+    if (!currentUserId) {
+        alert("Please log in to add items to your cart.");
+        window.location.href = "index.html"; // 跳转到登录页面
+        return;
+    }
+
+    // 弹出确认框，询问用户是否添加到购物车
+    const confirmAdd = confirm(`Do you want to add ${product.name} to your cart?`);
+    if (confirmAdd) {
+        // 检查该商品是否已在购物车中
+        fetch(`${API_BASE}/cart?userId=${currentUserId}`)
+            .then(response => response.json())
+            .then(cartItems => {
+                const existingItem = cartItems.find(item => item.productId === product.id);
+                if (existingItem) {
+                    // 如果商品已经存在，则更新数量
+                    existingItem.quantity += 1;
+                    updateCartItem(existingItem); // 更新购物车项
+                } else {
+                    // 如果商品不存在，则添加新商品
+                    addNewItemToCart(product, currentUserId);
+                }
+            })
+            .catch(error => {
+                console.error("Error checking cart items:", error);
+                alert("Failed to check cart items. Please try again.");
+            });
+    }
+}
+
+
+// 添加新的商品到购物车
+function addNewItemToCart(product, userId) {
+    const newCartItem = {
+        productId: product.id, // 商品ID
+        userId: userId, // 当前用户ID
+        quantity: 1 // 初始数量为1
+    };
+
+    // 将商品信息写入后端
     fetch(`${API_BASE}/cart`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            id: product.id,
-            name: product.name,
-            price: product.price
-        })
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newCartItem)
     })
-        .then(response => {
-            if (response.ok) {
-                alert("Item added to cart successfully!");
-            } else {
-                response.text().then(msg => alert(`Failed to add item to cart: ${msg}`));
-            }
-        })
-        .catch(error => console.error("Error adding item to cart:", error));
+    .then(response => {
+        if (response.ok) {
+            alert("Item added to cart successfully!");
+        } else {
+            alert("Failed to add item to cart.");
+        }
+    })
+    .catch(error => {
+        console.error("Error adding item to cart:", error);
+        alert("Failed to add item to cart. Please try again.");
+    });
+}
+
+// 更新购物车中商品数量
+function updateCartItem(cartItem) {
+    fetch(`${API_BASE}/cart`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(cartItem)
+    })
+    .then(response => {
+        if (response.ok) {
+            alert("Item quantity updated in cart.");
+        } else {
+            alert("Failed to update item quantity.");
+        }
+    })
+    .catch(error => {
+        console.error("Error updating cart item:", error);
+        alert("Failed to update cart item. Please try again.");
+    });
 }
 
 // 创建订单
