@@ -58,4 +58,26 @@ public class CartManager {
             System.err.println("Error adding item to cart: " + e.getMessage());
         }
     }
+    // 从购物车中删除商品
+    public boolean removeFromCart(String userId, int productId) {
+        List<CartItem> cartItems = getCartItemsForUser(userId);
+        boolean itemRemoved = false;
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CART_FILE_PATH))) {
+            for (CartItem item : cartItems) {
+                if (item.getProductId() == productId) {
+                    itemRemoved = true;  // 找到并删除该商品
+                } else {
+                    writer.write(item.getProductId() + ";;;" + item.getUserId() + ";;;" + item.getQuantity());
+                    writer.newLine();
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error removing item from cart: " + e.getMessage());
+        }
+
+        return itemRemoved;
+    }
+
+
 }

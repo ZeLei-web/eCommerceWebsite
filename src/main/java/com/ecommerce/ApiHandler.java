@@ -151,6 +151,26 @@ public class ApiHandler {
                 return "Item added to cart successfully.";
             }
         });
+        // 从购物车删除商品
+        delete("/cart/:productId", (req, res) -> {
+            String productId = req.params(":productId");
+            String userId = req.queryParams("userId");  // 确保你也传递了 userId
+            if (productId != null && userId != null) {
+                boolean success = cartManager.removeFromCart(userId, Integer.parseInt(productId));
+                if (success) {
+                    res.status(200);
+                    return "Item removed from cart.";
+                } else {
+                    res.status(500);
+                    return "Failed to remove item from cart.";
+                }
+            } else {
+                res.status(400);
+                return "Product ID and User ID are required.";
+            }
+        });
+
+
 
 
 
