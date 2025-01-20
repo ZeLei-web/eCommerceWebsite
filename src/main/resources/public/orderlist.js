@@ -1,77 +1,110 @@
 const API_BASE = "http://localhost:4567";
+const currentUserId = localStorage.getItem("userId"); // 获取用户名作为 userId
 
-fetch(`${API_BASE}/orders`)
-    .then(response => response.json())
+// 检查用户是否登录
+if (!currentUserId) {
+    alert("Please log in to view your orders.");
+    window.location.href = "index.html";
+}
+
+// 获取订单
+fetch(`${API_BASE}/orders?userId=${currentUserId}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Failed to fetch orders: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(orders => {
-        const orderList = document.getElementById("order-list");
+        const container = document.getElementById("orders-container");
+
+        if (orders.length === 0) {
+            container.innerHTML = "<p>No orders found for this user.</p>";
+            return;
+        }
+
         orders.forEach(order => {
             const orderDiv = document.createElement("div");
-            orderDiv.className = "order-item";
+            orderDiv.classList.add("order-item");
 
-            // 图片部分
-            const img = document.createElement("img");
-            img.src = `public/products/${order.productId}.jpg`; // 假设图片路径格式
-            img.alt = "Product Image";
+            const imageElement = document.createElement("img");
+            imageElement.src = `${API_BASE}${order.productImagePath}`;
+            imageElement.alt = order.productName;
+            imageElement.style.width = "150px"; // 设置图片宽度
+            imageElement.style.height = "150px"; // 设置图片高度
+            imageElement.style.objectFit = "cover"; // 确保图片裁剪适配
 
-            // 商品详情
-            const detailsDiv = document.createElement("div");
-            detailsDiv.className = "order-details";
-            detailsDiv.innerHTML = `
-                <p><strong>Order ID:</strong> ${order.orderId}</p>
-                <p><strong>Product Name:</strong> ${order.productName}</p>
-                <p><strong>Price:</strong> RM ${order.price.toFixed(2)}</p>
-                <p><strong>Status:</strong> ${order.status}</p>
+            const orderImageDiv = document.createElement("div");
+            orderImageDiv.classList.add("order-image");
+            orderImageDiv.appendChild(imageElement);
+
+            const orderInfoDiv = document.createElement("div");
+            orderInfoDiv.classList.add("order-info");
+            orderInfoDiv.innerHTML = `
+                <h3>${order.productName}</h3>
+                <p>Price: RM ${order.productPrice.toFixed(2)}</p>
+                <p>Status: ${order.status}</p>
             `;
 
-            // 操作按钮
-            const actionsDiv = document.createElement("div");
-            actionsDiv.className = "order-actions";
-
+            const orderActionsDiv = document.createElement("div");
+            orderActionsDiv.classList.add("order-actions");
             if (order.status === "Processing") {
-                const cancelButton = document.createElement("button");
-                cancelButton.textContent = "Cancel Order";
-                cancelButton.addEventListener("click", () => {
-                    updateOrderStatus(order.orderId, "Cancelled");
+                const continueBtn = document.createElement("button");
+                continueBtn.classList.add("continue-btn");
+                continueBtn.textContent = "Continue Purchase";
+                continueBtn.setAttribute("data-order-id", order.orderId);
+                continueBtn.addEventListener("click", (event) => {
+                    event.preventDefault(); // 阻止默认行为
+                    const confirmPurchase = confirm("Are you sure you want to complete the purchase?");
+                    if (confirmPurchase) {
+                        updateOrderStatus(order.orderId, "Completed");
+                    }
                 });
 
-                const continueButton = document.createElement("button");
-                continueButton.textContent = "Continue Purchase";
-                continueButton.addEventListener("click", () => {
-                    localStorage.setItem("orderId", order.orderId);
-                    window.location.href = "order.html";
+                const cancelBtn = document.createElement("button");
+                cancelBtn.classList.add("cancel-btn");
+                cancelBtn.textContent = "Cancel Order";
+                cancelBtn.setAttribute("data-order-id", order.orderId);
+                cancelBtn.addEventListener("click", (event) => {
+                    event.preventDefault(); // 阻止默认行为
+                    const confirmCancel = confirm("Are you sure you want to cancel the order?");
+                    if (confirmCancel) {
+                        updateOrderStatus(order.orderId, "Cancelled");
+                    }
                 });
 
-                actionsDiv.appendChild(cancelButton);
-                actionsDiv.appendChild(continueButton);
-            } else if (order.status === "Completed") {
-                const refundButton = document.createElement("button");
-                refundButton.textContent = "Request Refund";
-                refundButton.addEventListener("click", () => {
-                    updateOrderStatus(order.orderId, "Refunded");
-                });
-                actionsDiv.appendChild(refundButton);
+                orderActionsDiv.appendChild(continueBtn);
+                orderActionsDiv.appendChild(cancelBtn);
             }
 
-            // 组合各部分
-            orderDiv.appendChild(img);
-            orderDiv.appendChild(detailsDiv);
-            orderDiv.appendChild(actionsDiv);
-            orderList.appendChild(orderDiv);
+            orderDiv.appendChild(orderImageDiv);
+            orderDiv.appendChild(orderInfoDiv);
+            orderDiv.appendChild(orderActionsDiv);
+
+            container.appendChild(orderDiv);
         });
     })
-    .catch(error => console.error("Error loading orders:", error));
+    .catch(error => {
+        console.error("Error loading orders:", error);
+        document.getElementById("orders-container").innerHTML = "<p>Failed to load orders.</p>";
+    });
 
+// 更新订单状态
 function updateOrderStatus(orderId, newStatus) {
-    fetch(`${API_BASE}/order/${orderId}?status=${newStatus}`, {
-        method: "PUT"
+    fetch(`${API_BASE}/order/${orderId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `status=${newStatus}`
     })
         .then(response => {
             if (response.ok) {
-                alert(`Order ${orderId} status updated to ${newStatus}`);
-                window.location.reload();
+                alert(`Order status updated to ${newStatus}.`);
+                window.location.reload(); // 刷新页面以显示更新后的状态
             } else {
                 alert("Failed to update order status.");
             }
         })
-        .catch(error => console.error("Error updating order status:", error));
+        .catch(error => {
+            console.error("Error updating order status:", error);
+        });
 }

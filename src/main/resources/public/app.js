@@ -35,16 +35,13 @@ document.getElementById("login-form")?.addEventListener("submit", function (e) {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Login failed");
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (data.message === "Login successful") {
+                // 将 username 存储为 userId
+                localStorage.setItem("userId", data.userId);
                 localStorage.setItem("username", data.username);
-                window.location.href = "homepage.html"; // 确保跳转到主页
+                window.location.href = "homepage.html"; // 跳转到主页
             } else {
                 alert("Invalid username or password");
             }
@@ -54,6 +51,7 @@ document.getElementById("login-form")?.addEventListener("submit", function (e) {
             alert("Login failed: Unable to connect to the server.");
         });
 });
+
 
 // 搜索功能
 document.getElementById("search-btn")?.addEventListener("click", function () {
@@ -138,48 +136,74 @@ if (window.location.pathname.includes("homepage.html")) {
     const userInfo = document.getElementById("user-info");
     if (userInfo) {
         userInfo.textContent = username;
+
+        // 添加点击事件监听器
+        if (username !== "Guest") {
+                userInfo.addEventListener("click", () => {
+                    const confirmLogout = confirm("Are you sure you want to log out?");
+                    if (confirmLogout) {
+                        localStorage.removeItem("username");
+                        window.location.href = "index.html";
+                    }
+                });
+         }
     }
 }
 
+
+// 解析 URL 参数获取 productId
+const urlParams = new URLSearchParams(window.location.search);
+const productId = urlParams.get("id");
 // 加载商品详情
-fetch(`${API_BASE}/products/${productId}`)
-    .then(response => response.json())
-    .then(product => {
-        document.getElementById("product-name").textContent = product.name;
-        document.getElementById("product-price").textContent = `RM ${product.price.toFixed(2)}`;
-        document.getElementById("product-description").textContent = product.description;
+if (window.location.pathname.includes("product.html")) {
+    if (!productId) {
+        alert("Invalid product URL. Redirecting to homepage.");
+        window.location.href = "homepage.html";
+    } else {
+        // 商品详情页的相关逻辑
+        fetch(`${API_BASE}/products/${productId}`)
+            .then(response => response.json())
+            .then(product => {
+                document.getElementById("product-name").textContent = product.name;
+                document.getElementById("product-price").textContent = `RM ${product.price.toFixed(2)}`;
+                document.getElementById("product-description").textContent = product.description;
 
-        loadProductImages(productId);
+                loadProductImages(productId);
 
-        // "Add to Cart" 按钮功能
-        document.getElementById("add-to-cart").addEventListener("click", () => {
-            fetch(`${API_BASE}/cart`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    id: product.id,
-                    name: product.name,
-                    price: product.price
-                })
-            })
-                .then(response => {
-                    if (response.ok) {
-                        alert("Item added to cart successfully!");
-                    } else {
-                        alert("Failed to add item to cart.");
-                    }
-                })
-                .catch(error => {
-                    console.error("Error adding item to cart:", error);
-                    alert("Failed to add item to cart. Please try again.");
+                // "Add to Cart" 按钮功能
+                document.getElementById("add-to-cart").addEventListener("click", () => {
+                    fetch(`${API_BASE}/cart`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price
+                        })
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                alert("Item added to cart successfully!");
+                            } else {
+                                alert("Failed to add item to cart.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error adding item to cart:", error);
+                            alert(`Failed to add item to cart. Error: ${error.message}`);
+                        });
                 });
-        });
 
-        // "Buy Now" 按钮功能
-        document.getElementById("buy-now").addEventListener("click", () => {
-            // 将商品信息存储到 localStorage，供支付页面使用
-            localStorage.setItem("buyNowItem", JSON.stringify(product));
-            window.location.href = "order.html"; // 跳转到支付页面
-        });
-    })
-    .catch(error => console.error("Error loading product details:", error));
+                // "Buy Now" 按钮功能
+                document.getElementById("buy-now").addEventListener("click", () => {
+                    // 将商品信息存储到 localStorage，供支付页面使用
+                    localStorage.setItem("buyNowItem", JSON.stringify(product));
+                    window.location.href = "order.html"; // 跳转到支付页面
+                });
+            })
+            .catch(error => console.error("Error loading product details:", error));
+    }
+} else {
+    console.log("This page does not require productId.");
+}
+
