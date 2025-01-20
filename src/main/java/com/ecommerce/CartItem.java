@@ -1,25 +1,28 @@
 package com.ecommerce;
 
 public class CartItem {
-    private int id;
-    private String name;
-    private double price;
+    private int productId;
+    private String userId;
+    private int quantity;
 
-    public CartItem(int id, String name, double price) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
+    public CartItem(int productId, String userId, int quantity) {
+        this.productId = productId;
+        this.userId = userId;
+        this.quantity = quantity;
     }
 
-    public int getId() {
-        return id;
+    public int getProductId() {
+        return productId;
     }
 
-    public String getName() {
-        return name;
+    public String getUserId() {
+        return userId;
     }
 
-    public double getPrice() {
-        return price;
+    public int getQuantity() {
+        return quantity;
+    }
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

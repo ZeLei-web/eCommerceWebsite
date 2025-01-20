@@ -96,51 +96,63 @@ public class ApiHandler {
             }
         });
 
-        // 添加到购物车接口
+// 添加到购物车接口
         post("/cart", (req, res) -> {
             Gson gson = new Gson();
-            CartItem cartItem;
-            try {
-                cartItem = gson.fromJson(req.body(), CartItem.class);
-            } catch (Exception e) {
-                res.status(400);
-                return "Invalid request payload.";
-            }
+            CartItem cartItem = gson.fromJson(req.body(), CartItem.class);  // 获取前端传来的购物车项
 
-            if (cartItem.getId() <= 0 || cartItem.getName() == null || cartItem.getName().isEmpty()) {
-                res.status(400);
-                return "Invalid cart item data.";
-            }
+            // 检查该商品是否已经在购物车中
+            boolean itemExists = cartManager.checkIfItemExists(cartItem.getUserId(), cartItem.getProductId());
 
-            boolean success = cartManager.addToCart(cartItem);
-            if (success) {
+            if (itemExists) {
+                // 如果商品已经存在，则更新数量
+                cartManager.updateCartItemQuantity(cartItem.getUserId(), cartItem.getProductId(), cartItem.getQuantity());
                 res.status(200);
+                return "Item quantity updated in cart.";
+            } else {
+                // 否则，添加新商品到购物车
+                cartManager.addToCart(cartItem);
+                res.status(201);
                 return "Item added to cart successfully.";
-            } else {
-                res.status(500);
-                return "Failed to add item to cart.";
             }
         });
 
-        // 创建订单接口
-        post("/order", (req, res) -> {
-            Gson gson = new Gson();
-            Order order = gson.fromJson(req.body(), Order.class);
-
-            if (order.getProductId() <= 0 || order.getStatus() == null || order.getStatus().isEmpty()) {
+// 获取用户购物车项
+        get("/cart", (req, res) -> {
+            String userId = req.queryParams("userId");
+            if (userId == null || userId.isEmpty()) {
                 res.status(400);
-                return "Invalid order data.";
+                return "User ID is required.";
             }
 
-            boolean success = orderManager.createOrder(order);
-            if (success) {
+            List<CartItem> cartItems = cartManager.getCartItemsForUser(userId);
+            res.type("application/json");
+            return new Gson().toJson(cartItems);
+        });
+
+
+// 添加或更新购物车项
+        post("/cart", (req, res) -> {
+            Gson gson = new Gson();
+            CartItem cartItem = gson.fromJson(req.body(), CartItem.class);  // 获取前端传来的购物车项
+
+            // 检查该商品是否已经在购物车中
+            boolean itemExists = cartManager.checkIfItemExists(cartItem.getUserId(), cartItem.getProductId());
+
+            if (itemExists) {
+                // 如果商品已经存在，则更新数量
+                cartManager.updateCartItemQuantity(cartItem.getUserId(), cartItem.getProductId(), cartItem.getQuantity());
                 res.status(200);
-                return "Order created successfully.";
+                return "Item quantity updated in cart.";
             } else {
-                res.status(500);
-                return "Failed to create order.";
+                // 否则，添加新商品到购物车
+                cartManager.addToCart(cartItem);
+                res.status(201);
+                return "Item added to cart successfully.";
             }
         });
+
+
 
         put("/order/:id", (req, res) -> {
             int orderId = Integer.parseInt(req.params(":id"));
