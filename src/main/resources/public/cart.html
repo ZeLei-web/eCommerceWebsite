@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>PinXixi - Cart</h1>
+</header>
+<main>
+    <h2>Shopping Cart</h2>
+    <div id="cart-list">
+        <!-- 购物车商品将动态加载 -->
+    </div>
+</main>
+<script>
+    const API_BASE = "http://localhost:4567";
+
+    // 从后端加载购物车内容
+    fetch(`${API_BASE}/cart`)
+        .then(response => response.json())
+        .then(cartItems => {
+            const cartList = document.getElementById("cart-list");
+            if (cartItems.length === 0) {
+                cartList.innerHTML = "<p>Your cart is empty.</p>";
+            } else {
+                cartItems.forEach(item => {
+                    const itemDiv = document.createElement("div");
+                    itemDiv.classList.add("cart-item");
+                    itemDiv.innerHTML = `
+                        <p><strong>Product ID:</strong> ${item.id}</p>
+                        <p><strong>Name:</strong> ${item.name}</p>
+                        <p><strong>Price:</strong> RM ${item.price.toFixed(2)}</p>
+                    `;
+                    cartList.appendChild(itemDiv);
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Error loading cart items:", error);
+            const cartList = document.getElementById("cart-list");
+            cartList.innerHTML = "<p>Failed to load cart. Please try again later.</p>";
+        });
+</script>
+</body>
+</html>
