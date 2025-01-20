@@ -214,11 +214,9 @@ function createOrder(product) {
     })
     .then(response => {
         if (response.ok) {
-            console.log("Order created successfully:", response);
             alert("Order placed successfully!");
             window.location.href = "orderlist.html";  // 跳转到订单列表
         } else {
-            response.text().then(text => console.error("Server error:", text)); // 输出错误信息
             alert("Failed to place the order.");
         }
     })

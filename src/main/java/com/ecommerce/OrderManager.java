@@ -28,12 +28,12 @@ public class OrderManager {
 
     // 创建订单
     public synchronized boolean createOrder(Order order) {
-        int nextOrderId = getNextOrderId();
-        order.setOrderId(nextOrderId);
+        int nextOrderId = getNextOrderId(); // 获取下一个订单编号
+        order.setOrderId(nextOrderId); // 设置订单编号
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(ORDER_FILE_PATH, true))) {
             writer.write(order.getOrderId() + ";;;" + order.getProductId() + ";;;" + order.getUserId() + ";;;" + order.getStatus());
-            writer.newLine();
+            writer.newLine(); // 换行，表示每个订单是新的一行
             return true;
         } catch (IOException e) {
             System.err.println("Error writing to orders file: " + e.getMessage());

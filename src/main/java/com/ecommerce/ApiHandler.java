@@ -172,6 +172,10 @@ public class ApiHandler {
             }
         });
 
+
+
+
+
         put("/order/:id", (req, res) -> {
             int orderId = Integer.parseInt(req.params(":id"));
             String newStatus = req.queryParams("status");
@@ -190,28 +194,6 @@ public class ApiHandler {
                 return "Failed to update order status.";
             }
         });
-        // 添加 POST /order 的处理逻辑
-        post("/order", (req, res) -> {
-            String body = req.body();
-            Gson gson = new Gson();
-            Order order = gson.fromJson(body, Order.class);
-
-            if (order == null || order.getProductId() <= 0 || order.getUserId() <= 0) {
-                res.status(400);
-                return "Invalid order data.";
-            }
-
-            boolean success = orderManager.createOrder(order);
-
-            if (success) {
-                res.status(201); // Created
-                return "Order created successfully.";
-            } else {
-                res.status(500);
-                return "Failed to create order.";
-            }
-        });
-
 
 
 // 获取当前用户的订单列表接口
