@@ -3,31 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order List</title>
+    <title>My Orders</title>
+    <link rel="stylesheet" href="orderlist.css">
 </head>
 <body>
+<header>
+    <h1>PinXixi - My Orders</h1>
+</header>
 <main>
-    <h2>Order List</h2>
-    <div id="order-list">
-        <!-- 订单信息将动态加载 -->
+    <div id="orders-container">
+        <!-- 动态加载订单 -->
     </div>
 </main>
-<script>
-    fetch(`${API_BASE}/orders`)
-        .then(response => response.json())
-        .then(orders => {
-            const orderList = document.getElementById("order-list");
-            orders.forEach(order => {
-                const orderDiv = document.createElement("div");
-                orderDiv.innerHTML = `
-                    <p>Order ID: ${order.orderId}</p>
-                    <p>Product ID: ${order.productId}</p>
-                    <p>Status: ${order.status}</p>
-                `;
-                orderList.appendChild(orderDiv);
-            });
-        })
-        .catch(error => console.error("Error loading orders:", error));
-</script>
+<script src="orderlist.js"></script>
 </body>
 </html>
